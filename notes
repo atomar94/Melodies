@@ -1,0 +1,7 @@
+#to start
+
+conda create --name melody python=3 pip
+source activate melody
+pip install pafy youtube-dl
+
+
