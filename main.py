@@ -11,8 +11,7 @@ https://www.youtube.com/watch?v=s8XIgR5OGJc
 #unsure of their artist/title
 unsure_songs = []
 
-#root = "C:/users/alex/Music/Melodies/"
-root = "./"
+root = "./outputs/"
 _verbose = True
 def print_v(s):
     if _verbose:
@@ -57,9 +56,9 @@ def getter(songurl):
 def directory_constructor(metadatas):
     paths = []
     for m in metadatas:
-        print_d(type(m))
         m['path'] = root + m['artist']
-        paths.append(m['path'])
+        if not m['path'] in paths:
+            paths.append(m['path'])
 
     print("Do you want to create these directories?")
     for p in paths:
@@ -67,14 +66,17 @@ def directory_constructor(metadatas):
 
     if input("[Y/n]").lower().strip() == "y":
         for m in metadatas:
+            if os.path.exists(m['path']):
+                print_v("Directory " + m['path'] + " already exists!")
             if not os.path.exists(m['path']):
-                print_v("making dir for <" + m['artist'] + ">")
+                print_v("Creating " + m['path'])
                 os.makedirs(m['path'], exist_ok=True)
+        for m in metadatas:
             try:
                 bestaudio = m['yt'].getbestaudio(preftype="m4a")
-                bestaudio.download(filepath=m['path'] + "/" + m['title'] + "." + bestaudio.extension, quiet=True)
+                bestaudio.download(filepath=m['path'] + "/" + m['title'] + "." + bestaudio.extension, quiet=_verbose)
             except FileExistsError:
-                print_v("You already have <" + m['title'] + ">")
+                print_d("You already have <" + m['title'] + ">")
             except FileNotFoundError:
                 print_v("error with <" + m['title'] + ">")
                 unsure_songs.append(m['yt'].url)
@@ -89,10 +91,3 @@ for i, songurl in enumerate(songs.split("\n")):
         song_data.append(metadata)
 
 directory_constructor(song_data)
-
-    
-while True:
-    try:
-        getter(input("Song URL: "))
-    except:
-        exit()
